@@ -1,3 +1,7 @@
-export default {
-    base: "/frontend"
-}
+import { defineConfig } from 'vite'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+
+export default defineConfig({
+    base: "/frontend",
+    plugins: [svelte()],
+})
