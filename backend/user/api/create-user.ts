@@ -1,5 +1,5 @@
 import {api} from "encore.dev/api";
-import {db} from "../database-setup";
+import {userDatabase} from "../database-setup";
 import {userCreationTopic} from "../../notification/email/user/user-creation.topic";
 
 export const createUser = api(
@@ -34,14 +34,14 @@ interface CreateUserResponse {
 }
 
 async function insertUserInDatabase({firstName, lastName}: CreateUserRequest) {
-    await db.exec`
+    await userDatabase.exec`
         INSERT INTO users (first_name, last_name)
         VALUES (${firstName}, ${lastName})
     `;
 }
 
 async function fetchUserFromDatabase(firstName: string, lastName: string): Promise<Record<string, any>> {
-    const user = await db.queryRow`
+    const user = await userDatabase.queryRow`
         SELECT *
         FROM users
         WHERE first_name = ${firstName}
