@@ -1,5 +1,8 @@
 import {api, APIError} from "encore.dev/api";
-import {user} from "~encore/clients"
+import {user} from "~encore/clients";
+import {getPrivateKey} from "./rsa-key-manager";
+import {UserDetailsForAuthenticationResponse} from "../user/api/get-user";
+import jwt from "jsonwebtoken";
 
 export const authenticate = api(
     {
@@ -14,7 +17,7 @@ export const authenticate = api(
             throw APIError.unauthenticated("Invalid credentials");
         }
         return {
-            jwtToken: "very secure"
+            jwtToken: buildJWTToken(userDetails)
         };
     }
 );
@@ -28,6 +31,15 @@ interface AuthenticationResponse {
     jwtToken: string;
 }
 
-function buildJWTToken() {
-
+function buildJWTToken({id, email, roles}: UserDetailsForAuthenticationResponse) {
+    const privateKey = getPrivateKey();
+    const payload = {
+        subject: id,
+        email: email,
+        roles: roles,
+    }
+    return jwt.sign(payload, privateKey, {
+            expiresIn: "2h",
+        }
+    )
 }
