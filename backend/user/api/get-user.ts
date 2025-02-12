@@ -1,17 +1,6 @@
-import {api, APIError, Query} from "encore.dev/api";
+import {api, Query} from "encore.dev/api";
+import {retrieveUserByEmail} from "./repeated-sql-functions";
 import {userDatabase} from "../database-setup";
-
-export const getUserById = api(
-    {
-        method: "GET",
-        path: "/users/:id",
-        expose: true,
-        auth: false
-    },
-    ({id}: { id: number }) => {
-
-    }
-);
 
 export const getUserDetailsForAuthentication = api(
     {
@@ -21,18 +10,13 @@ export const getUserDetailsForAuthentication = api(
         auth: false
     },
     async ({email}: UserDetailsForAuthenticationRequest): Promise<UserDetailsForAuthenticationResponse> => {
-        const user = await userDatabase.queryRow`
-            SELECT *
-            FROM users
-            WHERE email = ${email}
-        `;
-        if (!user) {
-            throw APIError.notFound(`User with email ${email} does not exist`);
-        }
+        const user = await retrieveUserByEmail(email);
+        const roles = await retrieveUserRoles(user.id);
         return {
             id: user.id,
             email: user.email,
-            password: user.password,
+            passwordHash: user.passwordHash,
+            roles: roles
         }
     }
 );
@@ -41,8 +25,22 @@ interface UserDetailsForAuthenticationRequest {
     email: Query<string>;
 }
 
-interface UserDetailsForAuthenticationResponse {
+export interface UserDetailsForAuthenticationResponse {
     id: number;
     email: string;
-    password: string;
+    passwordHash: string;
+    roles: string[];
+}
+
+async function retrieveUserRoles(userId: string) {
+    const userRoles = userDatabase.query`
+        SELECT *
+        FROM user_roles
+        WHERE user_id = ${userId}
+    `
+    const roles: string[] = [];
+    for await (const role of userRoles) {
+        roles.push(role.id);
+    }
+    return roles;
 }
