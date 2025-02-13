@@ -3,7 +3,7 @@ import fs from "fs";
 let privateKey: string;
 let publicKey: string;
 
-fs.readFile("/Users/filipomarchevski/WebstormProjects/very-interesting-app/rsa-keys/keys", "utf8", (err, key) => {
+fs.readFile("./rsa-keys/privateKey.pem", "utf8", (err, key) => {
     if (err) {
         console.error("Could not load private key", err);
         return;
@@ -12,7 +12,7 @@ fs.readFile("/Users/filipomarchevski/WebstormProjects/very-interesting-app/rsa-k
     privateKey = key;
 })
 
-fs.readFile("/Users/filipomarchevski/WebstormProjects/very-interesting-app/rsa-keys/keys.pub", "utf8", (err, key) => {
+fs.readFile("./rsa-keys/publicKey.pem", "utf8", (err, key) => {
     if (err) {
         console.error("Could not load public key", err);
         return;

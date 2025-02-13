@@ -8,3 +8,11 @@ export async function hashPassword(password: string): Promise<string> {
         throw new Error("Could not hash the password");
     }
 }
+
+/**
+ * @param actualPassword a raw, not hashed string, the {@link bcrypt.compare} function will do the hashing
+ * @param expectedPassword the hashed password from the database
+ */
+export async function comparePasswords(actualPassword: string, expectedPassword: string): Promise<boolean> {
+    return await bcrypt.compare(actualPassword, expectedPassword);
+}
