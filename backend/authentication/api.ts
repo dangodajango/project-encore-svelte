@@ -1,8 +1,8 @@
 import {api, APIError} from "encore.dev/api";
 import {user} from "~encore/clients";
 import {getPrivateKey} from "./rsa-key-manager";
-import {UserDetailsForAuthenticationResponse} from "../user/api/get-user";
 import jwt from "jsonwebtoken";
+import {UserAuthenticationDetailsResponse} from "../user/controller/dto/user.dto";
 
 export const authenticate = api(
     {
@@ -12,8 +12,8 @@ export const authenticate = api(
         auth: false,
     },
     async ({email, password}: AuthenticationRequest): Promise<AuthenticationResponse> => {
-        const userDetails = await user.getUserDetailsForAuthentication({email});
-        if (userDetails.password !== password) {
+        const userDetails = await user.userAuthenticationDetailsEndpoint({email});
+        if (userDetails.passwordHash !== password) {
             throw APIError.unauthenticated("Invalid credentials");
         }
         return {
@@ -31,7 +31,7 @@ interface AuthenticationResponse {
     jwtToken: string;
 }
 
-function buildJWTToken({id, email, roles}: UserDetailsForAuthenticationResponse) {
+function buildJWTToken({id, email, roles}: UserAuthenticationDetailsResponse) {
     const privateKey = getPrivateKey();
     const payload = {
         subject: id,

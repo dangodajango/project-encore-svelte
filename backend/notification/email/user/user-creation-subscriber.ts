@@ -1,8 +1,8 @@
 import {Subscription} from "encore.dev/pubsub";
-import {UserCreationEvent, userCreationTopic} from "./user-creation.topic";
+import {UserRegistrationEvent, UserRegistrationTopic} from "./user-registration.topic";
 
-const _ = new Subscription(userCreationTopic, "send-confirmation-email", {
-    handler: async (event: UserCreationEvent) => {
+const _ = new Subscription(UserRegistrationTopic, "send-confirmation-email", {
+    handler: async (event: UserRegistrationEvent) => {
         console.log(event);
     }
 });
